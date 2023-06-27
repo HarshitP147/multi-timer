@@ -43,7 +43,7 @@ export default function Stopwatch() {
                     {formatTime(time)}
                 </Text>
             </View>
-            <View style={styles.buttonContainer}>
+            <View>
                 {running ?
                     <View style={styles.actionButtonContainer}>
                         <Button buttonStyles={styles.stopButton} onPress={(e) => setTimer("Stop")} >Stop</Button>
@@ -76,9 +76,6 @@ const styles = StyleSheet.create({
     timer: {
         textAlign: "center",
         fontSize: 45
-    },
-    buttonContainer: {
-        marginTop: 20,
     },
     actionButtonContainer: {
         flexDirection: "row",

@@ -14,10 +14,10 @@ export default function Time() {
 
 const styles = StyleSheet.create({
     timeContainer: {
-        borderColor: "black",
+        marginVertical: 40,
         borderWidth: 2,
         borderRadius: 8,
-        marginHorizontal: 20
+        marginHorizontal: 20,
     },
     time: {
         fontSize: 42,
