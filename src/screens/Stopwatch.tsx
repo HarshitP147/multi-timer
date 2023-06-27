@@ -1,43 +1,37 @@
-import { useState, useReducer, useEffect } from "react";
-import { View, Text, StyleSheet, GestureResponderEvent } from "react-native";
+import { useState, useRef } from "react";
+import { View, Text, StyleSheet } from "react-native";
 
 import Button from "../components/Button";
 
+import formatTime from "../util/format";
+
+type actionType = "Start" | "Stop" | "Lap" | "Reset";
 
 export default function Stopwatch() {
-    const [milli, setMilli] = useState(0);
-    const [sec, setSec] = useState(0);
-    const [min, setMin] = useState(0);
+    const [time, setTime] = useState(0);
     const [running, setRunning] = useState(false);
+    const intervalRef = useRef<NodeJS.Timer>();
 
-    useEffect(() => {
-        let secInterval: NodeJS.Timer, milliInterval: NodeJS.Timer, minInterval: NodeJS.Timer;
-        if (running) {
-            
-        }
-
-        return () => {
-            clearInterval(secInterval);
-            clearInterval(milliInterval);
-        }
-    }, [running, sec, milli])
-
-    function setTimer(e: GestureResponderEvent, action: "Start" | "Stop" | "Lap" | "Reset") {
+    function setTimer(action: actionType) {
         switch (action) {
             case "Start":
                 setRunning(true);
+                const startTime = Date.now() - time;
+                intervalRef.current = setInterval(() => {
+                    const elapsedTime = Date.now() - startTime;
+                    setTime(elapsedTime);
+                }, 10);
                 break;
+
             case "Stop":
                 setRunning(false);
+                clearInterval(intervalRef.current);
                 break;
-            case "Lap":
-                console.log("Time lap");
-                break;
+
             case "Reset":
                 setRunning(false);
-                setMilli(0);
-                setSec(0);
-                setMin(0);
+                clearInterval(intervalRef.current);
+                setTime(0);
                 break;
         }
     }
@@ -46,23 +40,23 @@ export default function Stopwatch() {
         <View style={styles.pageContainer}>
             <View style={styles.timerContainer}>
                 <Text style={styles.timer}>
-                    {sec}.{milli}
+                    {formatTime(time)}
                 </Text>
             </View>
             <View style={styles.buttonContainer}>
                 {running ?
                     <View style={styles.actionButtonContainer}>
-                        <Button buttonStyles={styles.stopButton} onPress={(e) => setTimer(e, "Stop")} >Stop</Button>
-                        <Button buttonStyles={styles.lapButton} onPress={(e) => setTimer(e, "Lap")} >Lap</Button>
+                        <Button buttonStyles={styles.stopButton} onPress={(e) => setTimer("Stop")} >Stop</Button>
+                        <Button buttonStyles={styles.lapButton} onPress={(e) => setTimer("Lap")} >Lap</Button>
 
                     </View>
                     :
-                    (milli == 0 && sec == 0 && min == 0) ?
-                        <Button buttonStyles={styles.startButton} onPress={(e) => setTimer(e, "Start")}>Start</Button>
+                    (time === 0) ?
+                        <Button buttonStyles={styles.startButton} onPress={(e) => setTimer("Start")}>Start</Button>
                         :
                         <View style={styles.actionButtonContainer}>
-                            <Button buttonStyles={styles.resumeButton} onPress={(e) => setTimer(e, "Start")} >Resume</Button>
-                            <Button buttonStyles={styles.resetButton} onPress={(e) => setTimer(e, "Reset")} >Reset</Button>
+                            <Button buttonStyles={styles.resumeButton} onPress={(e) => setTimer("Start")} >Resume</Button>
+                            <Button buttonStyles={styles.resetButton} onPress={(e) => setTimer("Reset")} >Reset</Button>
                         </View>
                 }
             </View>
