@@ -20,9 +20,9 @@ export default function Button({ textColor = "white", ...props }: propTypes) {
 const styles = StyleSheet.create({
     container: {
         borderRadius: 9,
-        elevation: 20,
+        elevation: 40,
         marginHorizontal: 10,
-        minWidth: "25%"
+        minWidth: "25%",
     },
     text: {
         textAlign: "center",

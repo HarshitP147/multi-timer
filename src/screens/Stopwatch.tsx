@@ -1,18 +1,19 @@
 import { useState, useRef } from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-import Button from "../components/Button";
+import ButtonContainer from "../components/ButtonContainer";
+import LappedTime from "../components/LappedTime";
 
 import formatTime from "../util/format";
-
-type actionType = "Start" | "Stop" | "Lap" | "Reset";
 
 export default function Stopwatch() {
     const [time, setTime] = useState(0);
     const [running, setRunning] = useState(false);
+    const [laps, setLap] = useState<number[]>([]);
+
     const intervalRef = useRef<NodeJS.Timer>();
 
-    function setTimer(action: actionType) {
+    function setTimer(action: "Start" | "Stop" | "Lap" | "Reset") {
         switch (action) {
             case "Start":
                 setRunning(true);
@@ -32,8 +33,17 @@ export default function Stopwatch() {
                 setRunning(false);
                 clearInterval(intervalRef.current);
                 setTime(0);
+                setLap([]);
+                break;
+
+            case "Lap":
+                setLap(value => [...value, time])
                 break;
         }
+    }
+
+    function deleteLapTime(sno: number) {
+        setLap(value => value.filter(ele => laps.indexOf(ele) !== sno - 1));
     }
 
     return (
@@ -43,23 +53,10 @@ export default function Stopwatch() {
                     {formatTime(time)}
                 </Text>
             </View>
-            <View>
-                {running ?
-                    <View style={styles.actionButtonContainer}>
-                        <Button buttonStyles={styles.stopButton} onPress={(e) => setTimer("Stop")} >Stop</Button>
-                        <Button buttonStyles={styles.lapButton} onPress={(e) => setTimer("Lap")} >Lap</Button>
 
-                    </View>
-                    :
-                    (time === 0) ?
-                        <Button buttonStyles={styles.startButton} onPress={(e) => setTimer("Start")}>Start</Button>
-                        :
-                        <View style={styles.actionButtonContainer}>
-                            <Button buttonStyles={styles.resumeButton} onPress={(e) => setTimer("Start")} >Resume</Button>
-                            <Button buttonStyles={styles.resetButton} onPress={(e) => setTimer("Reset")} >Reset</Button>
-                        </View>
-                }
-            </View>
+            <ButtonContainer running={running} setTimer={setTimer} time={time} />
+
+            <LappedTime laps={laps} deleteLapTime={deleteLapTime} />
         </View>
     )
 }
@@ -75,31 +72,6 @@ const styles = StyleSheet.create({
     },
     timer: {
         textAlign: "center",
-        fontSize: 45
-    },
-    actionButtonContainer: {
-        flexDirection: "row",
-        width: "100%",
-        justifyContent: "space-evenly"
-    },
-    startButton: {
-        backgroundColor: "black",
-        color: "white",
-    },
-    stopButton: {
-        backgroundColor: "red",
-        width: "40%",
-    },
-    resumeButton: {
-        backgroundColor: "blue",
-        width: "40%"
-    },
-    lapButton: {
-        backgroundColor: "green",
-        width: "40%",
-    },
-    resetButton: {
-        backgroundColor: "orange",
-        width: "40%"
+        fontSize: 50
     }
 })
